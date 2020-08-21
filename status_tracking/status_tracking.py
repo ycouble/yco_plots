@@ -49,7 +49,11 @@ def _add_day_failed(
 
 
 def read_status_file(stats_path: str) -> pd.DataFrame:
-    return pd.read_csv(stats_path, index_col=0, parse_dates=True)
+    return (
+        pd.read_csv(stats_path, index_col=0, parse_dates=True)
+        if os.path.isfile(stats_path)
+        else pd.DataFrame()
+    )
 
 
 def insert_results_for_day(
@@ -69,11 +73,7 @@ def update_today_statuses_in_csv(stats_path: str, failed_tests: List[str], tests
     """
     Reads and update stats for today's date
     """
-    past_df = (
-        read_status_file(stats_path)
-        if os.path.isfile(stats_path)
-        else pd.DataFrame()
-    )
+    past_df = read_status_file(stats_path)
     updated_df = insert_results_for_day(
         past_df, datetime.date.today(), failed_tests, tests
     )
